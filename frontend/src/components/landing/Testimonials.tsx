@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { memo } from "react";
 
 const quotes = [
   {
@@ -33,7 +34,7 @@ const quotes = [
   },
 ];
 
-export function Testimonials() {
+export const Testimonials = memo(function Testimonials() {
   return (
     <section id="reviews" className="relative py-32 md:py-44 z-10">
       <div className="mx-auto max-w-6xl px-6">
@@ -41,8 +42,8 @@ export function Testimonials() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.7 }}
-          className="max-w-2xl mb-16"
+          transition={{ duration: 0.5 }}
+          className="max-w-2xl mb-16 motion-gpu"
         >
           <div className="text-[13px] font-medium tracking-wide text-blue-400 mb-4 flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
@@ -60,8 +61,8 @@ export function Testimonials() {
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.8, delay: (i % 3) * 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="glass rounded-[1.5rem] p-7 flex flex-col justify-between group hover:-translate-y-1 transition-all duration-500 hover:bg-white/[0.04] border-white/5 hover:border-white/10 hover:shadow-[0_8px_30px_rgba(59,130,246,0.1)]"
+              transition={{ duration: 0.5, delay: (i % 3) * 0.06, ease: [0.16, 1, 0.3, 1] }}
+              className="glass rounded-[1.5rem] p-7 flex flex-col justify-between group hover:-translate-y-1 transition-all duration-500 hover:bg-white/[0.04] border-white/5 hover:border-white/10 hover:shadow-[0_8px_30px_rgba(59,130,246,0.1)] motion-gpu"
             >
               <blockquote className="text-[15px] leading-relaxed text-foreground/90 font-light">
                 &ldquo;{q.q}&rdquo;
@@ -86,4 +87,4 @@ export function Testimonials() {
       </div>
     </section>
   );
-}
+});

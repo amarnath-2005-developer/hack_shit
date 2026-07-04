@@ -1,6 +1,6 @@
 import { motion, useInView } from "framer-motion";
 import { Sparkles, ArrowUp } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { memo, useRef } from "react";
 
 const script = [
   { role: "user", text: "I felt off yesterday. What happened?" },
@@ -15,7 +15,7 @@ const script = [
   },
 ];
 
-export function AISection() {
+export const AISection = memo(function AISection() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
 
@@ -81,7 +81,7 @@ export function AISection() {
                     key={i}
                     role={m.role as "user" | "ai"}
                     text={m.text}
-                    delay={i * 1.5}
+                    delay={i * 0.35}
                   />
                 ))}
             </div>
@@ -101,30 +101,25 @@ export function AISection() {
       </div>
     </section>
   );
-}
+});
 
-function ChatBubble({ role, text, delay }: { role: "user" | "ai"; text: string; delay: number }) {
-  const [shown, setShown] = useState("");
+const ChatBubble = memo(function ChatBubble({
+  role,
+  text,
+  delay,
+}: {
+  role: "user" | "ai";
+  text: string;
+  delay: number;
+}) {
   const isUser = role === "user";
-  useEffect(() => {
-    const start = setTimeout(() => {
-      let i = 0;
-      const t = setInterval(() => {
-        i++;
-        setShown(text.slice(0, i));
-        if (i >= text.length) clearInterval(t);
-      }, 15);
-      return () => clearInterval(t);
-    }, delay * 1000);
-    return () => clearTimeout(start);
-  }, [text, delay]);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 10, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ delay, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className={`flex ${isUser ? "justify-end" : "justify-start"}`}
+      className={`flex motion-gpu ${isUser ? "justify-end" : "justify-start"}`}
     >
       <div
         className={`max-w-[85%] rounded-[1.25rem] px-5 py-3.5 text-[13px] md:text-sm leading-relaxed tracking-wide font-medium shadow-elevated ${
@@ -133,11 +128,8 @@ function ChatBubble({ role, text, delay }: { role: "user" | "ai"; text: string; 
             : "bg-blue-500/10 border border-blue-500/20 text-white"
         }`}
       >
-        {shown}
-        {shown.length < text.length && (
-          <span className="inline-block w-1.5 h-3.5 bg-blue-400 ml-1 align-middle animate-pulse" />
-        )}
+        {text}
       </div>
     </motion.div>
   );
-}
+});

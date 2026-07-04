@@ -1,15 +1,26 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float, Sphere, Environment, ContactShadows } from "@react-three/drei";
-import { useRef, useState, useEffect } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import type { Mesh, Group } from "three";
 
-function PremiumSphere() {
+const CAMERA = { position: [0, 0, 6] as [number, number, number], fov: 45 };
+const GL_CONFIG = { antialias: true, alpha: true, powerPreference: "high-performance" as const };
+
+const PremiumSphere = memo(function PremiumSphere() {
   const meshRef = useRef<Mesh>(null);
   const groupRef = useRef<Group>(null);
+  const elapsedRef = useRef(0);
+  const sphereArgs = useMemo<[number, number, number]>(() => [1.6, 48, 48], []);
+  const primaryRingArgs = useMemo<[number, number, number, number]>(() => [2.2, 0.01, 12, 80], []);
+  const secondaryRingArgs = useMemo<[number, number, number, number]>(
+    () => [2.6, 0.005, 12, 80],
+    [],
+  );
 
-  useFrame(({ clock, pointer }) => {
+  useFrame(({ pointer }, delta) => {
     if (!meshRef.current || !groupRef.current) return;
-    const t = clock.getElapsedTime();
+    elapsedRef.current += delta;
+    const t = elapsedRef.current;
     // Smooth, slow rotation
     meshRef.current.rotation.y = t * 0.1;
     meshRef.current.rotation.z = t * 0.05;
@@ -24,7 +35,7 @@ function PremiumSphere() {
   return (
     <group ref={groupRef}>
       <Float speed={1.5} rotationIntensity={0.2} floatIntensity={1}>
-        <Sphere ref={meshRef} args={[1.6, 64, 64]} position={[0, 0, 0]}>
+        <Sphere ref={meshRef} args={sphereArgs} position={[0, 0, 0]}>
           <meshPhysicalMaterial
             color="#0B1120"
             metalness={0.9}
@@ -40,7 +51,7 @@ function PremiumSphere() {
       {/* Subtle floating ring */}
       <Float speed={1} rotationIntensity={1} floatIntensity={0.5}>
         <mesh position={[0, 0, 0]} rotation={[Math.PI / 3, 0, 0]}>
-          <torusGeometry args={[2.2, 0.01, 16, 100]} />
+          <torusGeometry args={primaryRingArgs} />
           <meshStandardMaterial
             color="#3B82F6"
             emissive="#3B82F6"
@@ -52,15 +63,15 @@ function PremiumSphere() {
       </Float>
       <Float speed={1.2} rotationIntensity={1} floatIntensity={0.8}>
         <mesh position={[0, 0, 0]} rotation={[-Math.PI / 4, Math.PI / 6, 0]}>
-          <torusGeometry args={[2.6, 0.005, 16, 100]} />
+          <torusGeometry args={secondaryRingArgs} />
           <meshStandardMaterial color="#06B6D4" opacity={0.3} transparent />
         </mesh>
       </Float>
     </group>
   );
-}
+});
 
-function CSSFallbackSphere() {
+const CSSFallbackSphere = memo(function CSSFallbackSphere() {
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
       {/* Volumetric glow backdrop */}
@@ -68,7 +79,7 @@ function CSSFallbackSphere() {
       {/* Outer orbit rings */}
       <div className="absolute w-[280px] h-[280px] rounded-full border border-blue-500/20 rotate-45 animate-spin [animation-duration:20s]" />
       <div className="absolute w-[320px] h-[320px] rounded-full border border-cyan-500/10 -rotate-12 animate-spin [animation-duration:35s]" />
-      
+
       {/* Glass Orb */}
       <div className="relative w-48 h-48 rounded-full bg-gradient-to-b from-white/10 to-white/0 border border-white/15 shadow-[0_0_50px_rgba(59,130,246,0.2)] backdrop-blur-md overflow-hidden">
         {/* Shiny reflection highlight */}
@@ -76,9 +87,9 @@ function CSSFallbackSphere() {
       </div>
     </div>
   );
-}
+});
 
-export function HeroScene() {
+export const HeroScene = memo(function HeroScene() {
   const [webglAvailable, setWebglAvailable] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -105,9 +116,10 @@ export function HeroScene() {
   return (
     <div className="absolute inset-0 z-0 pointer-events-none mix-blend-screen opacity-80">
       <Canvas
-        dpr={[1, 2]}
-        camera={{ position: [0, 0, 6], fov: 45 }}
-        gl={{ antialias: true, alpha: true }}
+        dpr={[1, 1.5]}
+        frameloop="always"
+        camera={CAMERA}
+        gl={GL_CONFIG}
         onCreated={({ gl }) => {
           // Listen to context loss to gracefully switch to CSS fallback
           gl.domElement.addEventListener("webglcontextlost", () => {
@@ -133,4 +145,4 @@ export function HeroScene() {
       </Canvas>
     </div>
   );
-}
+});

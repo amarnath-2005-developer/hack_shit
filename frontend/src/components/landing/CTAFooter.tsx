@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { memo } from "react";
 
-export function CTAFooter() {
+export const CTAFooter = memo(function CTAFooter() {
   return (
     <section id="cta" className="relative py-32 md:py-40 z-10">
       <div className="mx-auto max-w-5xl px-6">
@@ -9,8 +10,8 @@ export function CTAFooter() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.8 }}
-          className="relative glass-strong rounded-[2rem] overflow-hidden text-center px-8 py-24 border border-white/10 shadow-elevated bg-black/40 backdrop-blur-3xl"
+          transition={{ duration: 0.5 }}
+          className="relative glass-strong rounded-[2rem] overflow-hidden text-center px-8 py-24 border border-white/10 shadow-elevated bg-black/40 backdrop-blur-3xl motion-gpu"
         >
           {/* Subtle light beam */}
           <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-blue-500/10 blur-[100px] animate-pulse-slow" />
@@ -71,4 +72,4 @@ export function CTAFooter() {
       </div>
     </section>
   );
-}
+});

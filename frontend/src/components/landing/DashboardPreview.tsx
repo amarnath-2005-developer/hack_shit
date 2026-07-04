@@ -1,7 +1,18 @@
 import { motion } from "framer-motion";
-import { Flame, Trophy, Zap, Activity, Clock, Settings, User, Bell, type LucideIcon } from "lucide-react";
+import {
+  Flame,
+  Trophy,
+  Zap,
+  Activity,
+  Clock,
+  Settings,
+  User,
+  Bell,
+  type LucideIcon,
+} from "lucide-react";
+import { memo } from "react";
 
-export function DashboardPreview() {
+export const DashboardPreview = memo(function DashboardPreview() {
   return (
     <section id="dashboard" className="relative py-32 md:py-44 z-10">
       <div className="mx-auto max-w-6xl px-6">
@@ -9,8 +20,8 @@ export function DashboardPreview() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.7 }}
-          className="max-w-2xl mb-16"
+          transition={{ duration: 0.5 }}
+          className="max-w-2xl mb-16 motion-gpu"
         >
           <div className="text-[13px] font-medium tracking-wide text-blue-400 mb-4 flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
@@ -27,8 +38,8 @@ export function DashboardPreview() {
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="glass-strong rounded-3xl p-2 md:p-3 shadow-elevated border-white/10 bg-black/20 backdrop-blur-3xl"
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="glass-strong rounded-3xl p-2 md:p-3 shadow-elevated border-white/10 bg-black/20 backdrop-blur-3xl motion-gpu"
           >
             <div className="bg-[#030712]/80 rounded-[1.25rem] border border-white/5 overflow-hidden">
               {/* OS Header */}
@@ -87,8 +98,8 @@ export function DashboardPreview() {
                   initial={{ opacity: 0, scale: 0.98 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: 0.3 }}
-                  className="md:col-span-8 glass rounded-2xl p-6 relative overflow-hidden group hover:bg-white/[0.04] transition-colors duration-500"
+                  transition={{ duration: 0.5, delay: 0.18 }}
+                  className="md:col-span-8 glass rounded-2xl p-6 relative overflow-hidden group hover:bg-white/[0.04] transition-colors duration-500 motion-gpu"
                 >
                   <div className="flex justify-between items-start mb-8">
                     <div>
@@ -117,8 +128,8 @@ export function DashboardPreview() {
                           whileInView={{ height: `${v}%` }}
                           viewport={{ once: true }}
                           transition={{
-                            duration: 1,
-                            delay: 0.2 + i * 0.05,
+                            duration: 0.5,
+                            delay: 0.12 + i * 0.03,
                             ease: [0.16, 1, 0.3, 1],
                           }}
                           className="w-full rounded-t-sm bg-blue-500/20 border-t border-blue-400/50 group-hover/bar:bg-blue-400/40 transition-colors"
@@ -138,8 +149,8 @@ export function DashboardPreview() {
                   initial={{ opacity: 0, scale: 0.98 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: 0.4 }}
-                  className="md:col-span-4 glass rounded-2xl p-6 relative overflow-hidden flex flex-col group hover:bg-white/[0.04] transition-colors duration-500"
+                  transition={{ duration: 0.5, delay: 0.24 }}
+                  className="md:col-span-4 glass rounded-2xl p-6 relative overflow-hidden flex flex-col group hover:bg-white/[0.04] transition-colors duration-500 motion-gpu"
                 >
                   <div className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground mb-6">
                     Neural Insights
@@ -189,9 +200,9 @@ export function DashboardPreview() {
       </div>
     </section>
   );
-}
+});
 
-function StatPanel({
+const StatPanel = memo(function StatPanel({
   icon: Icon,
   label,
   value,
@@ -211,8 +222,8 @@ function StatPanel({
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
-      className="glass rounded-2xl p-6 flex flex-col justify-between group hover:-translate-y-1 transition-all duration-500 hover:shadow-[0_8px_30px_rgba(59,130,246,0.1)] border-white/5 hover:border-white/10 hover:bg-white/[0.04]"
+      transition={{ duration: 0.5, delay, ease: [0.16, 1, 0.3, 1] }}
+      className="glass rounded-2xl p-6 flex flex-col justify-between group hover:-translate-y-1 transition-all duration-500 hover:shadow-[0_8px_30px_rgba(59,130,246,0.1)] border-white/5 hover:border-white/10 hover:bg-white/[0.04] motion-gpu"
     >
       <div className="flex items-center justify-between mb-8">
         <div className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
@@ -233,4 +244,4 @@ function StatPanel({
       </div>
     </motion.div>
   );
-}
+});

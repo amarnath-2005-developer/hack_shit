@@ -1,6 +1,7 @@
 import { motion, useMotionValue, useSpring, useTransform, useMotionTemplate } from "framer-motion";
 import { Brain, Gauge, LineChart, Sparkles, Target, TrendingUp } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { memo, useCallback, useRef } from "react";
 import type { MouseEvent, ReactNode } from "react";
 
 const features: {
@@ -47,7 +48,7 @@ const features: {
   },
 ];
 
-export function Features() {
+export const Features = memo(function Features() {
   return (
     <section id="features" className="relative py-32 md:py-44 z-10">
       <div className="mx-auto max-w-6xl px-6">
@@ -55,8 +56,8 @@ export function Features() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.7 }}
-          className="max-w-2xl mb-16"
+          transition={{ duration: 0.5 }}
+          className="max-w-2xl mb-16 motion-gpu"
         >
           <div className="text-[13px] font-medium tracking-wide text-blue-400 mb-4 flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
@@ -92,30 +93,47 @@ export function Features() {
       </div>
     </section>
   );
-}
+});
 
-function TiltCard({ children, index }: { children: ReactNode; index: number }) {
+const TiltCard = memo(function TiltCard({
+  children,
+  index,
+}: {
+  children: ReactNode;
+  index: number;
+}) {
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  
+  const boundsRef = useRef<DOMRect | null>(null);
+
   const rx = useSpring(useTransform(my, [-0.5, 0.5], [8, -8]), { stiffness: 100, damping: 20 });
   const ry = useSpring(useTransform(mx, [-0.5, 0.5], [-8, 8]), { stiffness: 100, damping: 20 });
 
-  const onMove = (e: MouseEvent<HTMLDivElement>) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    mx.set((e.clientX - r.left) / r.width - 0.5);
-    my.set((e.clientY - r.top) / r.height - 0.5);
-    mouseX.set(e.clientX - r.left);
-    mouseY.set(e.clientY - r.top);
-  };
-  const onLeave = () => {
+  const onEnter = useCallback((e: MouseEvent<HTMLDivElement>) => {
+    boundsRef.current = e.currentTarget.getBoundingClientRect();
+  }, []);
+
+  const onMove = useCallback(
+    (e: MouseEvent<HTMLDivElement>) => {
+      const r = boundsRef.current;
+      if (!r) return;
+      mx.set((e.clientX - r.left) / r.width - 0.5);
+      my.set((e.clientY - r.top) / r.height - 0.5);
+      mouseX.set(e.clientX - r.left);
+      mouseY.set(e.clientY - r.top);
+    },
+    [mouseX, mouseY, mx, my],
+  );
+
+  const onLeave = useCallback(() => {
+    boundsRef.current = null;
     mx.set(0);
     my.set(0);
     mouseX.set(-1000);
     mouseY.set(-1000);
-  };
+  }, [mouseX, mouseY, mx, my]);
 
   const background = useMotionTemplate`radial-gradient(400px circle at ${mouseX}px ${mouseY}px, rgba(59, 130, 246, 0.15), transparent 80%)`;
 
@@ -124,17 +142,18 @@ function TiltCard({ children, index }: { children: ReactNode; index: number }) {
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.8, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.5, delay: index * 0.06, ease: [0.16, 1, 0.3, 1] }}
+      onMouseEnter={onEnter}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
       style={{ rotateX: rx, rotateY: ry, transformStyle: "preserve-3d", perspective: 1200 }}
-      className="will-change-transform h-full relative group rounded-[1.5rem]"
+      className="motion-gpu h-full relative group rounded-[1.5rem]"
     >
-      <motion.div 
+      <motion.div
         className="absolute inset-0 z-0 pointer-events-none rounded-[1.5rem] opacity-0 group-hover:opacity-100 transition-opacity duration-500"
         style={{ background }}
       />
       {children}
     </motion.div>
   );
-}
+});

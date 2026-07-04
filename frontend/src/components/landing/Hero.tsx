@@ -2,23 +2,44 @@ import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { ArrowRight, Play, Sparkles } from "lucide-react";
 import { ClientOnly } from "@/components/ClientOnly";
 import { HeroScene } from "./HeroScene";
+import { memo, useCallback, useRef } from "react";
+import type { PointerEvent } from "react";
 
-export function Hero() {
+export const Hero = memo(function Hero() {
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
   const rx = useSpring(useTransform(my, [-0.5, 0.5], [10, -10]), { stiffness: 100, damping: 20 });
   const ry = useSpring(useTransform(mx, [-0.5, 0.5], [-10, 10]), { stiffness: 100, damping: 20 });
   const tx = useSpring(useTransform(mx, [-0.5, 0.5], [-20, 20]), { stiffness: 100, damping: 20 });
   const ty = useSpring(useTransform(my, [-0.5, 0.5], [-20, 20]), { stiffness: 100, damping: 20 });
+  const boundsRef = useRef<DOMRect | null>(null);
+
+  const onPointerEnter = useCallback((e: PointerEvent<HTMLElement>) => {
+    boundsRef.current = e.currentTarget.getBoundingClientRect();
+  }, []);
+
+  const onPointerMove = useCallback(
+    (e: PointerEvent<HTMLElement>) => {
+      const r = boundsRef.current;
+      if (!r) return;
+      mx.set((e.clientX - r.left) / r.width - 0.5);
+      my.set((e.clientY - r.top) / r.height - 0.5);
+    },
+    [mx, my],
+  );
+
+  const onPointerLeave = useCallback(() => {
+    boundsRef.current = null;
+    mx.set(0);
+    my.set(0);
+  }, [mx, my]);
 
   return (
     <section
       id="top"
-      onMouseMove={(e) => {
-        const r = e.currentTarget.getBoundingClientRect();
-        mx.set((e.clientX - r.left) / r.width - 0.5);
-        my.set((e.clientY - r.top) / r.height - 0.5);
-      }}
+      onPointerEnter={onPointerEnter}
+      onPointerMove={onPointerMove}
+      onPointerLeave={onPointerLeave}
       className="relative pt-40 pb-32 md:pt-48 md:pb-40 overflow-hidden min-h-[100svh]"
     >
       {/* Premium subtle grid backdrop */}
@@ -31,8 +52,8 @@ export function Hero() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="inline-flex items-center gap-2 glass rounded-full px-4 py-2 text-[13px] font-medium text-foreground mb-8 border-white/10 shadow-glass"
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="inline-flex items-center gap-2 glass rounded-full px-4 py-2 text-[13px] font-medium text-foreground mb-8 border-white/10 shadow-glass motion-gpu"
         >
           <Sparkles className="w-3.5 h-3.5 text-blue-400" />
           <span>DisciplineOS v2 is here</span>
@@ -46,8 +67,8 @@ export function Hero() {
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-          className="text-5xl sm:text-6xl md:text-7xl lg:text-[96px] font-medium tracking-tight leading-[1.05]"
+          transition={{ duration: 0.5, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+          className="text-5xl sm:text-6xl md:text-7xl lg:text-[96px] font-medium tracking-tight leading-[1.05] motion-gpu"
         >
           Master your discipline.
           <br />
@@ -57,8 +78,8 @@ export function Hero() {
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="mt-8 max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground leading-relaxed font-light tracking-wide"
+          transition={{ duration: 0.5, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-8 max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground leading-relaxed font-light tracking-wide motion-gpu"
         >
           The AI-powered operating system for building consistency, habits, and long-term success —
           designed for humans who ship.
@@ -67,8 +88,8 @@ export function Hero() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4"
+          transition={{ duration: 0.5, delay: 0.24, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 motion-gpu"
         >
           <a
             href="#cta"
@@ -90,9 +111,9 @@ export function Hero() {
         <motion.div
           initial={{ opacity: 0, y: 60, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.5, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
           style={{ perspective: 2500 }}
-          className="relative mt-24 mx-auto max-w-5xl"
+          className="relative mt-24 mx-auto max-w-5xl motion-gpu"
         >
           <motion.div
             style={{ rotateX: rx, rotateY: ry, x: tx, y: ty, transformStyle: "preserve-3d" }}
@@ -105,7 +126,10 @@ export function Hero() {
               </ClientOnly>
             </div>
 
-            <div className="glass-strong rounded-2xl overflow-hidden shadow-[0_40px_120px_-20px_rgba(0,0,0,0.8)] border border-white/10 backdrop-blur-3xl bg-black/40" style={{ transformStyle: "preserve-3d" }}>
+            <div
+              className="glass-strong rounded-2xl overflow-hidden shadow-[0_40px_120px_-20px_rgba(0,0,0,0.8)] border border-white/10 backdrop-blur-3xl bg-black/40"
+              style={{ transformStyle: "preserve-3d" }}
+            >
               <div className="flex items-center justify-between px-5 py-3 border-b border-white/10 bg-white/5">
                 <div className="flex gap-2">
                   <div className="w-3 h-3 rounded-full bg-[#ED6A5E]" />
@@ -119,14 +143,20 @@ export function Hero() {
               </div>
               <div className="grid grid-cols-6 gap-6 p-8 bg-gradient-to-br from-white/[0.02] to-transparent">
                 {/* Discipline ring */}
-                <div className="col-span-2 glass rounded-xl p-6 flex flex-col items-center justify-center aspect-square shadow-elevated border-white/5 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(6,182,212,0.15)] transition-all duration-500" style={{ transform: "translateZ(30px)" }}>
+                <div
+                  className="col-span-2 glass rounded-xl p-6 flex flex-col items-center justify-center aspect-square shadow-elevated border-white/5 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(6,182,212,0.15)] transition-all duration-500"
+                  style={{ transform: "translateZ(30px)" }}
+                >
                   <RingChart value={87} />
                   <div className="mt-4 text-sm text-muted-foreground tracking-wide uppercase">
                     Discipline
                   </div>
                 </div>
                 {/* Streak */}
-                <div className="col-span-2 glass rounded-xl p-6 flex flex-col justify-between shadow-elevated border-white/5 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(59,130,246,0.15)] transition-all duration-500" style={{ transform: "translateZ(40px)" }}>
+                <div
+                  className="col-span-2 glass rounded-xl p-6 flex flex-col justify-between shadow-elevated border-white/5 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(59,130,246,0.15)] transition-all duration-500"
+                  style={{ transform: "translateZ(40px)" }}
+                >
                   <div className="text-sm text-muted-foreground tracking-wide uppercase">
                     Current Streak
                   </div>
@@ -138,7 +168,10 @@ export function Hero() {
                   </div>
                 </div>
                 {/* XP */}
-                <div className="col-span-2 glass rounded-xl p-6 flex flex-col justify-between shadow-elevated border-white/5 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(139,92,246,0.15)] transition-all duration-500" style={{ transform: "translateZ(50px)" }}>
+                <div
+                  className="col-span-2 glass rounded-xl p-6 flex flex-col justify-between shadow-elevated border-white/5 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(139,92,246,0.15)] transition-all duration-500"
+                  style={{ transform: "translateZ(50px)" }}
+                >
                   <div className="text-sm text-muted-foreground tracking-wide uppercase">
                     Total XP
                   </div>
@@ -150,7 +183,10 @@ export function Hero() {
                   </div>
                 </div>
                 {/* Chart */}
-                <div className="col-span-6 glass rounded-xl p-6 shadow-elevated border-white/5 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(6,182,212,0.1)] transition-all duration-500" style={{ transform: "translateZ(20px)" }}>
+                <div
+                  className="col-span-6 glass rounded-xl p-6 shadow-elevated border-white/5 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(6,182,212,0.1)] transition-all duration-500"
+                  style={{ transform: "translateZ(20px)" }}
+                >
                   <div className="flex items-center justify-between mb-6">
                     <div className="text-sm text-muted-foreground tracking-wide uppercase">
                       Weekly Trend
@@ -165,8 +201,6 @@ export function Hero() {
 
           {/* Floating badges */}
           <motion.div
-            animate={{ y: [0, -15, 0], rotateZ: [0, -2, 0] }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
             className="absolute -left-8 md:-left-20 top-32 glass-strong rounded-2xl px-5 py-4 hidden md:flex items-center gap-3 shadow-[0_20px_40px_rgba(0,0,0,0.5)] border-white/10"
             style={{ transform: "translateZ(50px)" }}
           >
@@ -177,8 +211,6 @@ export function Hero() {
             </div>
           </motion.div>
           <motion.div
-            animate={{ y: [0, 15, 0], rotateZ: [0, 2, 0] }}
-            transition={{ duration: 7.5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
             className="absolute -right-8 md:-right-20 top-64 glass-strong rounded-2xl px-5 py-4 hidden md:flex items-center gap-3 shadow-[0_20px_40px_rgba(0,0,0,0.5)] border-white/10"
             style={{ transform: "translateZ(80px)" }}
           >
@@ -192,7 +224,7 @@ export function Hero() {
       </div>
     </section>
   );
-}
+});
 
 function RingChart({ value }: { value: number }) {
   const r = 42;
@@ -222,7 +254,7 @@ function RingChart({ value }: { value: number }) {
           strokeDasharray={c}
           initial={{ strokeDashoffset: c }}
           animate={{ strokeDashoffset: offset }}
-          transition={{ duration: 2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.5, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
@@ -257,7 +289,7 @@ function MiniChart() {
         fill="url(#chart-g)"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 1.5, delay: 0.8 }}
+        transition={{ duration: 0.5, delay: 0.35 }}
       />
       <motion.path
         d={path}
@@ -266,7 +298,7 @@ function MiniChart() {
         fill="none"
         initial={{ pathLength: 0 }}
         animate={{ pathLength: 1 }}
-        transition={{ duration: 2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.5, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
         className="drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]"
       />
     </svg>
