@@ -1,0 +1,348 @@
+{
+  "info": {
+    "name": "DisciplineOS API",
+    "description": "AI-powered discipline tracking backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:5000" },
+    { "key": "jwt_token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["const res = pm.response.json();", "if (res.data && res.data.token) { pm.collectionVariables.set('jwt_token', res.data.token); }"] }
+          }]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["const res = pm.response.json();", "if (res.data && res.data.token) { pm.collectionVariables.set('jwt_token', res.data.token); }"] }
+          }]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/auth/logout",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] }
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/auth/profile",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/api/auth/profile",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"age\": 21,\n  \"occupation\": \"Student\",\n  \"wakeUpTime\": \"06:00\",\n  \"sleepTime\": \"22:00\",\n  \"studyGoal\": 5,\n  \"workoutGoal\": 45,\n  \"waterGoal\": 3\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Daily Logs",
+      "item": [
+        {
+          "name": "Create Daily Log",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/daily-logs",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sleepHours\": 7.5,\n  \"studyHours\": 5,\n  \"workoutMinutes\": 45,\n  \"waterIntake\": 3,\n  \"mood\": \"good\",\n  \"screenTime\": 4,\n  \"tasksCompleted\": 7,\n  \"notes\": \"Productive day overall\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Today's Log",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/daily-logs/today",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] }
+          }
+        },
+        {
+          "name": "Get All Logs",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/daily-logs?page=1&limit=30",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] }
+          }
+        },
+        {
+          "name": "Update Daily Log",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/api/daily-logs/:id",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studyHours\": 6,\n  \"mood\": \"great\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Daily Log",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/api/daily-logs/:id",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Habits",
+      "item": [
+        {
+          "name": "Create Habit",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/habits",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Morning Meditation\",\n  \"description\": \"10 minutes of mindfulness\",\n  \"frequency\": \"daily\",\n  \"target\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Habits",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/habits",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] }
+          }
+        },
+        {
+          "name": "Mark Habit Complete",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/habits/:id/complete",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] }
+          }
+        },
+        {
+          "name": "Get Habit Analytics",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/habits/:id/analytics",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] }
+          }
+        },
+        {
+          "name": "Update Habit",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/api/habits/:id",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Morning Meditation\",\n  \"target\": 2\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Habit",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/api/habits/:id",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bad Habits",
+      "item": [
+        {
+          "name": "Log Bad Habit",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/bad-habits",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"socialMedia\",\n  \"duration\": 60,\n  \"severity\": \"medium\",\n  \"notes\": \"Scrolled Instagram\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Bad Habits",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/bad-habits",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] }
+          }
+        },
+        {
+          "name": "Get Trends",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/bad-habits/trends?days=30",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI",
+      "item": [
+        {
+          "name": "AI Planner",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/ai/planner",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"wakeUpTime\": \"06:00\",\n  \"sleepTime\": \"22:00\",\n  \"collegeHours\": \"9am to 3pm\",\n  \"studyGoal\": 5,\n  \"workoutGoal\": 45\n}"
+            }
+          }
+        },
+        {
+          "name": "AI Coach",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/ai/coach",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"How can I reduce screen time and be more productive?\",\n  \"context\": \"I have exams coming up\"\n}"
+            }
+          }
+        },
+        {
+          "name": "AI Daily Review",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/ai/review",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] }
+          }
+        },
+        {
+          "name": "AI Predictions",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/ai/predict",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Weekly Scores",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/analytics/weekly",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] }
+          }
+        },
+        {
+          "name": "Monthly Report",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/analytics/monthly",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] }
+          }
+        },
+        {
+          "name": "Trends",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/analytics/trends?days=30",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] }
+          }
+        },
+        {
+          "name": "Heatmap",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/analytics/heatmap?days=90",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] }
+          }
+        },
+        {
+          "name": "Habit Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/analytics/habits",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] }
+          }
+        },
+        {
+          "name": "Score History",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/analytics/score-history?days=30",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Dashboard",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/dashboard",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}" }] }
+          }
+        }
+      ]
+    }
+  ]
+}
