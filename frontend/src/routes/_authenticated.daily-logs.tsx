@@ -20,7 +20,12 @@ function DailyLogsPage() {
   );
   const [creating, setCreating] = useState(false);
 
+  const hasLogForToday = data?.some(
+    (log) => new Date(log.date).toDateString() === new Date().toDateString()
+  );
+
   const addLog = async () => {
+    if (creating || hasLogForToday) return;
     setCreating(true);
     try {
       const created = await dailyLogsService.create({ date: new Date().toISOString() });
@@ -41,10 +46,16 @@ function DailyLogsPage() {
         actions={
           <button
             onClick={addLog}
-            disabled={creating}
+            disabled={creating || hasLogForToday}
             className="inline-flex items-center gap-2 rounded-full bg-white text-black px-4 py-2 text-sm font-medium hover:bg-white/90 transition disabled:opacity-60"
           >
-            <Plus className="w-4 h-4" /> New log
+            {hasLogForToday ? (
+              <span>Logged today</span>
+            ) : (
+              <>
+                <Plus className="w-4 h-4" /> New log
+              </>
+            )}
           </button>
         }
       />

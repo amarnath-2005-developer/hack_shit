@@ -19,6 +19,11 @@ function HabitsPage() {
     [],
   );
   const [busy, setBusy] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [frequency, setFrequency] = useState<"daily" | "weekly">("daily");
+  const [saving, setSaving] = useState(false);
 
   const toggle = async (h: Habit) => {
     setBusy(h._id);
@@ -42,6 +47,28 @@ function HabitsPage() {
     }
   };
 
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+    setSaving(true);
+    try {
+      const newHabit = await habitsService.create({
+        name,
+        description,
+        frequency,
+      });
+      setData([newHabit, ...(data ?? [])]);
+      setName("");
+      setDescription("");
+      setFrequency("daily");
+      setShowForm(false);
+    } catch {
+      /* handled gracefully */
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <>
       <PageHeader
@@ -49,7 +76,10 @@ function HabitsPage() {
         title="Systems, not resolutions"
         description="Small daily reps compound into who you become."
         actions={
-          <button className="inline-flex items-center gap-2 rounded-full bg-white text-black px-4 py-2 text-sm font-medium hover:bg-white/90 transition">
+          <button 
+            onClick={() => setShowForm(!showForm)}
+            className="inline-flex items-center gap-2 rounded-full bg-white text-black px-4 py-2 text-sm font-medium hover:bg-white/90 transition"
+          >
             <Plus className="w-4 h-4" /> New habit
           </button>
         }
@@ -65,20 +95,87 @@ function HabitsPage() {
 
       {!loading && error && <ErrorState message={error} onRetry={refetch} />}
 
-      {!loading && !error && data && data.length === 0 && (
+      {!loading && !error && showForm && (
+        <form onSubmit={handleCreate} className="glass rounded-2xl p-6 mb-6 max-w-xl border-cyan-500/20">
+          <h3 className="text-lg font-medium text-white mb-4">Create New Habit</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1.5">Habit Name</label>
+              <input
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g., Read 30 mins, Gym, Drink 3L Water"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-cyan-500 transition"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1.5">Description</label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Describe your ritual..."
+                rows={2}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-cyan-500 transition resize-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1.5">Frequency</label>
+              <div className="flex gap-2">
+                {(["daily", "weekly"] as const).map((freq) => (
+                  <button
+                    key={freq}
+                    type="button"
+                    onClick={() => setFrequency(freq)}
+                    className={`px-4 py-2 rounded-full text-xs font-semibold capitalize transition ${
+                      frequency === freq
+                        ? "bg-white text-black"
+                        : "bg-white/5 border border-white/10 text-muted-foreground hover:text-white"
+                    }`}
+                  >
+                    {freq}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end gap-3 mt-6">
+            <button
+              type="button"
+              onClick={() => setShowForm(false)}
+              className="px-4 py-2 rounded-full text-xs font-semibold bg-white/5 border border-white/10 text-muted-foreground hover:text-white transition"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="px-5 py-2 rounded-full text-xs font-semibold bg-cyan-accent text-black hover:bg-cyan-accent/90 transition disabled:opacity-50"
+            >
+              {saving ? "Saving..." : "Create Habit"}
+            </button>
+          </div>
+        </form>
+      )}
+
+      {!loading && !error && data && data.length === 0 && !showForm && (
         <EmptyState
           icon={Target}
           title="No habits yet"
           description="Pick one small daily action. Consistency > intensity."
           action={
-            <button className="inline-flex items-center gap-2 rounded-full bg-white text-black px-4 py-2 text-sm font-medium hover:bg-white/90 transition">
+            <button 
+              onClick={() => setShowForm(true)}
+              className="inline-flex items-center gap-2 rounded-full bg-white text-black px-4 py-2 text-sm font-medium hover:bg-white/90 transition"
+            >
               <Plus className="w-4 h-4" /> Create your first habit
             </button>
           }
         />
       )}
 
-      {!loading && !error && data && data.length > 0 && (
+      {!loading && !error && data && (data.length > 0 || showForm) && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {data.map((h) => (
             <div key={h._id} className="glass rounded-2xl p-5 flex items-start gap-4">

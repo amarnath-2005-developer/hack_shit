@@ -10,14 +10,14 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const connectDB = require('../config/db');
+const connectDB = require('../../config/db');
 
 // Models
-const User = require('../models/User');
-const DailyLog = require('../models/DailyLog');
-const Habit = require('../models/Habit');
-const BadHabit = require('../models/BadHabit');
-const UserStats = require('../models/UserStats');
+const User = require('../../models/User');
+const DailyLog = require('../../models/DailyLog');
+const Habit = require('../../models/Habit');
+const BadHabit = require('../../models/BadHabit');
+const UserStats = require('../../models/UserStats');
 
 const seed = async () => {
   try {
@@ -38,11 +38,10 @@ const seed = async () => {
     }
 
     // Create demo user
-    const password = await bcrypt.hash('demo123456', 12);
     const user = await User.create({
       name: 'Demo User',
       email: 'demo@disciplineos.com',
-      password,
+      password: 'demo123456',
       provider: 'local',
       age: 21,
       occupation: 'Computer Science Student',
@@ -103,23 +102,26 @@ const seed = async () => {
     ]);
     console.log(`✅ ${habits.length} sample habits created.`);
 
-    // Create sample daily logs (last 7 days)
-    const sampleDays = [
-      { sleepHours: 7.5, studyHours: 5, workoutMinutes: 40, waterIntake: 3, mood: 'good', screenTime: 3, tasksCompleted: 7 },
-      { sleepHours: 6, studyHours: 3, workoutMinutes: 0, waterIntake: 2, mood: 'okay', screenTime: 6, tasksCompleted: 4 },
-      { sleepHours: 8, studyHours: 6, workoutMinutes: 50, waterIntake: 3.5, mood: 'great', screenTime: 2, tasksCompleted: 9 },
-      { sleepHours: 5.5, studyHours: 2, workoutMinutes: 20, waterIntake: 1.5, mood: 'bad', screenTime: 7, tasksCompleted: 3 },
-      { sleepHours: 7, studyHours: 4.5, workoutMinutes: 45, waterIntake: 3, mood: 'good', screenTime: 4, tasksCompleted: 6 },
-      { sleepHours: 8, studyHours: 5.5, workoutMinutes: 60, waterIntake: 4, mood: 'great', screenTime: 2.5, tasksCompleted: 8 },
-      { sleepHours: 6.5, studyHours: 4, workoutMinutes: 30, waterIntake: 2.5, mood: 'okay', screenTime: 5, tasksCompleted: 5 },
-    ];
+    // Create sample daily logs (last 30 days)
+    const sampleDays = [];
+    for (let i = 0; i < 30; i++) {
+      sampleDays.push({
+        sleepHours: parseFloat((6 + Math.random() * 3).toFixed(1)),
+        studyHours: parseFloat((2 + Math.random() * 5).toFixed(1)),
+        workoutMinutes: Math.random() > 0.3 ? Math.floor(20 + Math.random() * 45) : 0,
+        waterIntake: parseFloat((1.5 + Math.random() * 2.5).toFixed(1)),
+        mood: ['bad', 'okay', 'good', 'great'][Math.floor(Math.random() * 4)],
+        screenTime: parseFloat((2 + Math.random() * 6).toFixed(1)),
+        tasksCompleted: Math.floor(Math.random() * 10),
+      });
+    }
 
     // Import discipline score service to calculate real scores
-    const disciplineScoreService = require('../services/disciplineScore.service');
+    const disciplineScoreService = require('../../services/disciplineScore.service');
 
     const logPromises = sampleDays.map(async (data, i) => {
       const date = new Date();
-      date.setDate(date.getDate() - (7 - i));
+      date.setDate(date.getDate() - (30 - i));
       date.setUTCHours(0, 0, 0, 0);
 
       // Calculate REAL discipline score — no hardcoding
